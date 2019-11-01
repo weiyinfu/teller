@@ -7,6 +7,7 @@ from tkinter import font as tk_font
 import flask
 import pygame
 from PIL import ImageTk, Image
+from flask import request
 
 from teller import config
 
@@ -100,9 +101,8 @@ q = mp.Queue()
 
 @app.route("/")
 def haha():
-    import time
-
-    q.put(f"haha {time.time()}")
+    content = request.args.get("content", "Got Message")
+    q.put(content)
     return ""
 
 
