@@ -21,13 +21,6 @@ def get_path(relative_path):
     return os.path.join(os.path.dirname(config.__file__), relative_path)
 
 
-def play_music():
-    """播放音乐"""
-    pygame.mixer.init()  # 初始化
-    pygame.mixer.music.load(get_path(config.music_path))  # 加载音乐
-    pygame.mixer.music.play()
-
-
 def set_win_center(root, width=None, height=None):
     """
     设置窗口大小，并居中显示
@@ -60,6 +53,12 @@ def show_window(q: mp.Queue):
     window.resizable(0, 0)
     window.attributes("-topmost", 1)
     set_win_center(window, config.window_width, config.window_height)
+    pygame.mixer.init()  # 初始化
+    pygame.mixer.music.load(get_path(config.music_path))  # 加载音乐
+
+    def play_music():
+        """播放音乐"""
+        pygame.mixer.music.play()
 
     def on_closing():
         msgList.delete(0, tk.END)
@@ -107,7 +106,9 @@ def haha():
 
 
 if __name__ == "__main__":
-    mp.Process(
+    ui_process = mp.Process(
         target=show_window, name="teller-gui-process", args=(q,)
-    ).start()  # GUI进程
+    )  # GUI进程
+    ui_process.daemon = True  # 主进程退出时，子进程必须及时退出
+    ui_process.start()
     app.run(debug=False, port=config.port)
