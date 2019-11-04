@@ -53,11 +53,11 @@ def show_window(q: mp.Queue):
     window.resizable(0, 0)
     window.attributes("-topmost", 1)
     set_win_center(window, config.window_width, config.window_height)
-    pygame.mixer.init()  # 初始化
-    pygame.mixer.music.load(get_path(config.music_path))  # 加载音乐
 
     def play_music():
         """播放音乐"""
+        pygame.mixer.init()  # 初始化
+        pygame.mixer.music.load(get_path(config.music_path))  # 加载音乐
         pygame.mixer.music.play()
 
     def on_closing():
