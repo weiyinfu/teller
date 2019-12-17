@@ -1,17 +1,17 @@
-import multiprocessing as mp
 import os
+import queue
+import subprocess as sp
 import threading
 import tkinter as tk
 from tkinter import font as tk_font
 
 import flask
-import pygame
 from PIL import ImageTk, Image
 from flask import request
 
 from teller import config
 
-"""  
+""" 
 ubuntu后台服务运行方式
 自动获取当前程序的名称
 """
@@ -44,28 +44,26 @@ def set_win_center(root, width=None, height=None):
     root.geometry(size_xy)
 
 
-def show_window(q: mp.Queue):
+def play_music():
+    sp.check_call(["play", get_path(config.music_path)])
+
+
+def show_window(q: queue.Queue):
     window = tk.Tk()
     img = Image.open(get_path(config.icon_path))
     photo = ImageTk.PhotoImage(img)
-    ft = tk_font.Font(family=None, size=20, weight=tk_font.BOLD)
+    ft = tk_font.Font(family="song ti", size=20, weight=tk_font.BOLD)
     window.wm_iconphoto(window, photo)
     window.resizable(0, 0)
     window.attributes("-topmost", 1)
     set_win_center(window, config.window_width, config.window_height)
-
-    def play_music():
-        """播放音乐"""
-        pygame.mixer.init()  # 初始化
-        pygame.mixer.music.load(get_path(config.music_path))  # 加载音乐
-        pygame.mixer.music.play()
 
     def on_closing():
         msgList.delete(0, tk.END)
         window.withdraw()
 
     def wait_message():
-        while 1:
+        if not q.empty():
             msg = q.get()
             print(msg)
             msgList.insert(tk.END, msg)
@@ -75,7 +73,8 @@ def show_window(q: mp.Queue):
             window.update()
             window.lift()
             if config.play_music:
-                play_music()
+                threading.Thread(play_music()).start()
+        window.after(1000, wait_message)
 
     def on_focus_in(e):
         pass
@@ -90,12 +89,12 @@ def show_window(q: mp.Queue):
     window.protocol("WM_DELETE_WINDOW", on_closing)
     window.bind("<FocusIn>", on_focus_in)
     window.bind("<FocusOut>", on_focus_out)
-    threading.Thread(target=wait_message).start()
+    window.after(1000, wait_message)
     window.mainloop()
 
 
 app = flask.Flask(__name__)
-q = mp.Queue()
+q = queue.Queue()
 
 
 @app.route("/")
@@ -105,10 +104,13 @@ def haha():
     return ""
 
 
+def run_app():
+    print("now will run")
+    app.run(debug=False, port=config.port)
+
+
 if __name__ == "__main__":
-    ui_process = mp.Process(
-        target=show_window, name="teller-gui-process", args=(q,)
-    )  # GUI进程
+    ui_process = threading.Thread(target=run_app, name="teller-gui-process")  # GUI进程
     ui_process.daemon = True  # 主进程退出时，子进程必须及时退出
     ui_process.start()
-    app.run(debug=False, port=config.port)
+    show_window(q)
