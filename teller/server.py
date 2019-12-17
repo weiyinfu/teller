@@ -45,7 +45,7 @@ def set_win_center(root, width=None, height=None):
 
 
 def play_music():
-    sp.check_call(["play", get_path(config.music_path)])
+    sp.Popen(["play", get_path(config.music_path)])
 
 
 def show_window(q: queue.Queue):
@@ -73,7 +73,7 @@ def show_window(q: queue.Queue):
             window.update()
             window.lift()
             if config.play_music:
-                threading.Thread(play_music()).start()
+                play_music()
         window.after(1000, wait_message)
 
     def on_focus_in(e):

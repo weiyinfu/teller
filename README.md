@@ -13,3 +13,5 @@ Host *
 
 ssh到远程机器之后，执行如下代码`python haha.py ; tell game over`，表示当`python haha.py`执行完毕之后，调用tell命令把消息发送到本地。
 
+# TODO
+添加设置对话框,设置字体
