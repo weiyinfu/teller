@@ -50,7 +50,7 @@ def set_win_center(root, width=None, height=None):
 
 
 def play_music():
-    sp.Popen(["play", get_path(config.music_path)])
+    sp.Popen(["play", "-q", get_path(config.music_path)])
 
 
 def show_window(q: queue.Queue):
