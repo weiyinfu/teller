@@ -1,6 +1,7 @@
 import os
 import queue
 import subprocess as sp
+import sys
 import threading
 import tkinter as tk
 from tkinter import font as tk_font
@@ -10,10 +11,14 @@ from PIL import ImageTk, Image
 from flask import request
 
 from teller import config
+from teller import util
 
 """ 
 ubuntu后台服务运行方式
 自动获取当前程序的名称
+
+窗口程序是主进程，web服务是子进程，因为tkinter比较奇葩，tkinter不能在子线程中运行。  
+如果涉及到可视化，还是不要用tkinter比较好，坑比较多。  
 """
 
 
@@ -52,7 +57,7 @@ def show_window(q: queue.Queue):
     window = tk.Tk()
     img = Image.open(get_path(config.icon_path))
     photo = ImageTk.PhotoImage(img)
-    ft = tk_font.Font(family="song ti", size=20, weight=tk_font.BOLD)
+    ft = tk_font.Font(family=config.font, size=20, weight=tk_font.BOLD)
     window.wm_iconphoto(window, photo)
     window.resizable(0, 0)
     window.attributes("-topmost", 1)
@@ -109,8 +114,24 @@ def run_app():
     app.run(debug=False, port=config.port)
 
 
-if __name__ == "__main__":
+def main():
+    if util.is_port_open('127.0.0.1', config.port):
+        # 检查是不是teller在运行
+        cmd = util.get_cmd_of_port(config.port)
+        cmd_string = ' '.join(cmd)
+        if 'teller' not in cmd_string:
+            print(f"""端口{config.port}已经被占用了，占用此端口的命令为{cmd.join(',')}""", file=sys.stderr)
+            print(cmd_string)
+            exit(0)
+        else:
+            print("teller已经启动")
+            exit(0)
+
     ui_process = threading.Thread(target=run_app, name="teller-gui-process")  # GUI进程
     ui_process.daemon = True  # 主进程退出时，子进程必须及时退出
     ui_process.start()
     show_window(q)
+
+
+if __name__ == "__main__":
+    main()

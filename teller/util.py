@@ -1,9 +1,11 @@
+"""
+查看端口占用情况，打印端口信息
+"""
 import socket
-import sys
+import subprocess as sp
 
-import requests
-
-from teller import config
+import click
+import psutil
 
 
 def is_port_open(ip: str, port: int):
@@ -18,15 +20,19 @@ def is_port_open(ip: str, port: int):
         return False
 
 
-def main():
-    if not is_port_open("127.0.0.1", config.port):
-        print(f"port {config.port} is not open !")
-        exit(-1)
-    args = " ".join(sys.argv[1:])
-    resp = requests.get(f"http://localhost:{config.port}", params={"content": args})
-    if resp.text:
-        print(resp.text)
+def get_process_id_by_port(port: int):
+    res = sp.check_output(f"lsof -i:{port}", shell=True)
+    lines = res.splitlines()
+    assert len(lines) > 0
+    pid = lines[1].split()[1]
+    return int(pid)
 
 
-if __name__ == '__main__':
-    main()
+def get_cmd_of_port(port: int):
+    pid = get_process_id_by_port(port)
+    p = psutil.Process(pid)
+    return p.cmdline()
+
+
+if __name__ == "__main__":
+    print(get_cmd_of_port(8090))
