@@ -95,6 +95,8 @@ def show_window(q: queue.Queue):
     window.bind("<FocusIn>", on_focus_in)
     window.bind("<FocusOut>", on_focus_out)
     window.after(1000, wait_message)
+    # 第一次显示窗口之后立马隐藏掉
+    window.after(0, lambda: window.withdraw())
     window.mainloop()
 
 
@@ -104,8 +106,6 @@ q = queue.Queue()
 def run_app():
     print("now will run")
     app = flask.Flask(__name__)
-    if not os.path.exists(config.log_dir):
-        os.makedirs(config.log_dir)
 
     @app.route("/")
     def haha():
