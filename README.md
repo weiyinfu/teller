@@ -6,6 +6,8 @@
 
 # 使用方法
 使用pip安装本程序`pip3 install git+https://github.com/weiyinfu/teller`.    
+在本地`./bashrc`中添加`nohup telld  > /dev/null  2>&1   &
+`  
 在本地的~/.ssh添加以下片段：
 ```bash
 Host *
