@@ -98,19 +98,21 @@ def show_window(q: queue.Queue):
     window.mainloop()
 
 
-app = flask.Flask(__name__)
 q = queue.Queue()
-
-
-@app.route("/")
-def haha():
-    content = request.args.get("content", "Got Message")
-    q.put(content)
-    return ""
 
 
 def run_app():
     print("now will run")
+    app = flask.Flask(__name__)
+    if not os.path.exists(config.log_dir):
+        os.makedirs(config.log_dir)
+
+    @app.route("/")
+    def haha():
+        content = request.args.get("content", "Got Message")
+        q.put(content)
+        return ""
+
     app.run(debug=False, port=config.port)
 
 
