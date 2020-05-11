@@ -31,6 +31,7 @@ def get_process_id_by_port(port: int):
 def get_cmd_of_port(port: int):
     pid = get_process_id_by_port(port)
     p = psutil.Process(pid)
+    print(p)
     return p.cmdline()
 
 

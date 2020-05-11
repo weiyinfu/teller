@@ -119,8 +119,8 @@ def main():
         # 检查是不是teller在运行
         cmd = util.get_cmd_of_port(config.port)
         cmd_string = ' '.join(cmd)
-        if 'teller' not in cmd_string:
-            print(f"""端口{config.port}已经被占用了，占用此端口的命令为{cmd.join(',')}""", file=sys.stderr)
+        if 'tell' not in cmd_string:
+            print(f"""端口{config.port}已经被占用了，占用此端口的命令为{','.join(cmd)}""", file=sys.stderr)
             print(cmd_string)
             exit(0)
         else:
