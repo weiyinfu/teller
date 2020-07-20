@@ -5,6 +5,10 @@
 于是，就有了本程序。 
 
 # 使用方法
+首先安装依赖：
+* mac上`brew install sox`
+* ubuntu上`apt-get install sox`
+
 使用pip安装本程序`pip3 install git+https://github.com/weiyinfu/teller`.    
 在本地`./bashrc`中添加`nohup telld  > /dev/null  2>&1   &
 `  
